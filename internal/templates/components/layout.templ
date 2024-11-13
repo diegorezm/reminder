@@ -1,0 +1,56 @@
+package components
+
+templ Layout() {
+	<!DOCTYPE html>
+	<html lang="en" data-theme="nord">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<script src="https://unpkg.com/htmx.org@2.0.3"></script>
+			<link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css"/>
+			<script src="https://cdn.tailwindcss.com"></script>
+			<title>Reminder</title>
+			<!-- Add your custom styles for the overlay -->
+			<style>
+				/* Ensure the overlay covers the entire viewport */
+				#overlay {
+					display: none; /* Hidden by default */
+					position: fixed;
+					top: 0;
+					left: 0;
+					right: 0;
+					bottom: 0;
+					background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent dark background */
+					backdrop-filter: blur(5px); /* Applies blur effect to the background */
+					z-index: 9999; /* Makes sure it is above other content */
+				}
+				#overlay .loading-text {
+					font-size: 24px;
+					color: white;
+				}
+			</style>
+		</head>
+		<body>
+			<!-- Full-Screen Overlay (Initially hidden) -->
+			<div id="overlay" class="hidden">
+				<div class="w-full h-full flex justify-center items-center">
+					<div class="text-white text-xl">Loading...</div>
+				</div>
+			</div>
+			<main class="container mx-auto mt-6">
+				{ children... }
+			</main>
+			<script>
+				// Show overlay before the request is made
+				document.body.addEventListener('htmx:configRequest', function () {
+					document.getElementById('overlay').classList.remove('hidden');
+				});
+
+				// Hide overlay after the request is finished
+				document.body.addEventListener('htmx:afterSwap', function () {
+					document.getElementById('overlay').classList.add('hidden');
+				});
+			</script>
+		</body>
+	</html>
+}

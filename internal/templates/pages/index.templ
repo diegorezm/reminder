@@ -1,0 +1,53 @@
+package pages
+
+import (
+	"fmt"
+	"github.com/diegorezm/reminder/internal/store"
+	"github.com/diegorezm/reminder/internal/templates/components"
+)
+
+func toURL(id int64) templ.SafeURL {
+	url := fmt.Sprintf("/%d", id)
+	return templ.SafeURL(url)
+}
+
+templ Index(reminders []store.Reminder, notifications []store.Notification) {
+	@components.Layout() {
+		<div class="flex flex-row items-center justify-between mb-4">
+			<div>
+				<h1 class="text-3xl font-bold">Reminders</h1>
+			</div>
+			<div>
+				<a class="btn btn-primary btn-md w-full" href="/create">
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+					Create a new reminder
+				</a>
+			</div>
+		</div>
+		if len(reminders) == 0 {
+			<div class="flex flex-col items-center justify-center">
+				<p class="text-lg">Create a new reminder to get started.</p>
+			</div>
+		} else {
+			<div class="space-y-6">
+				<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 w-1/2 p-6 place-items-center mx-auto">
+					for _, r := range reminders {
+						@components.ReminderCard(r)
+					}
+				</div>
+				<div>
+					if len(notifications) == 0 {
+						<p class="text-lg text-center">No notification is about to expire.</p>
+					} else {
+						<h1 class="text-3xl font-bold">Notifications that are about to expire</h1>
+						<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 w-1/2 p-6 place-items-center mx-auto">
+							for _, n := range notifications {
+								@components.NotificationCard(n)
+							}
+						</div>
+					}
+				</div>
+			</div>
+		}
+	}
+}

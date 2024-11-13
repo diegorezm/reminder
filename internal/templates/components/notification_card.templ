@@ -1,0 +1,36 @@
+package components
+
+import (
+	"github.com/diegorezm/reminder/internal/store"
+	"strconv"
+)
+
+func toString(id int64) string {
+	return strconv.FormatInt(id, 10)
+}
+
+templ NotificationCard(n store.Notification) {
+	<div class="card bg-base-300 w-full max-w-[200px] shadow-lg">
+		<div class="card-body gap-2 items-center justify-center gap-4">
+			<h3 class="text-lg">
+				id: { toString(n.ID) }
+			</h3>
+			if n.DismissedAt.Valid {
+				<div class="badge badge-success">
+					Dismissed
+				</div>
+			} else {
+				<div class="badge badge-warning">
+					{ n.DueDate.Format("02/01/2006") }
+				</div>
+			}
+			<form method="post" hx-post="/api/dismiss" hx-target="#response-content" hx-swap="outerHTML" hx-on::after-request="window.location.reload()">
+				<input type="text" name="id" value={ toString(n.ID) } hidden/>
+				<button class="btn btn-outline btn-sm" type="submit">
+					Dismiss
+				</button>
+			</form>
+			<p id="response-content" class="hidden text-md text-warning-content"></p>
+		</div>
+	</div>
+}
