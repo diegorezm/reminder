@@ -48,6 +48,7 @@ func (s *Server) StartServer() {
 		}
 	})
 
+	// GET
 	http.HandleFunc("/{id}", func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		pathId := r.URL.Path[1:]
@@ -81,7 +82,7 @@ func (s *Server) StartServer() {
 	http.HandleFunc("/create", func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
-		create := pages.Create()
+		create := pages.CreateReminder()
 
 		if err := create.Render(ctx, w); err != nil {
 			http.Error(w, "Failed to render page", http.StatusInternalServerError)
@@ -90,6 +91,7 @@ func (s *Server) StartServer() {
 		}
 	})
 
+	// POST
 	http.HandleFunc("/api/create", func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
@@ -138,6 +140,54 @@ func (s *Server) StartServer() {
 
 		w.WriteHeader(http.StatusCreated)
 		w.Write([]byte("Reminder created successfully"))
+	})
+
+	http.HandleFunc("/api/create/notification", func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
+		id := r.FormValue("id")
+
+		if id == "" {
+			http.Error(w, "ID is required", http.StatusBadRequest)
+			w.Write([]byte("ID is required"))
+			return
+		}
+
+		idInt, err := strconv.Atoi(id)
+
+		if err != nil {
+			http.Error(w, "Invalid ID", http.StatusBadRequest)
+			w.Write([]byte("Invalid ID"))
+			return
+		}
+
+		dateStr := r.FormValue("date")
+
+		if dateStr == "" {
+			http.Error(w, "Date is required", http.StatusBadRequest)
+			w.Write([]byte("Date is required"))
+			return
+		}
+
+		d := strings.Split(dateStr, "T")
+		dt := strings.Join(d, " ")
+
+		date, err := time.Parse("2006-01-02 15:04", dt)
+
+		if err != nil {
+			log.Printf("Error parsing date: %s", err)
+			http.Error(w, "Invalid date format", http.StatusBadRequest)
+			w.Write([]byte("Invalid date format"))
+			return
+		}
+
+		err = s.st.CreateNotification(ctx, store.CreateNotificationParams{
+			ReminderID: int64(idInt),
+			DueDate:    date,
+		})
+
+		w.WriteHeader(http.StatusCreated)
+		w.Write([]byte("Notification created successfully"))
 	})
 
 	http.HandleFunc("/api/delete", func(w http.ResponseWriter, r *http.Request) {

@@ -111,6 +111,10 @@ func help() {
 	fmt.Println("        expired            Lists all expired notifications.")
 	fmt.Println("        reminder <id>      List notifications for a specific reminder.")
 
+	fmt.Println("\n    clean <subcommand>")
+	fmt.Println("        all                Nukes the database.")
+	fmt.Println("        expired            Removes all expired notifications.")
+
 	fmt.Println("\nExamples:")
 	fmt.Println("  reminder-cli create \"Meeting\" \"31/12/2024 15:00:00\" \"+3d\"")
 	fmt.Println("  reminder-cli list notifications all")
@@ -195,7 +199,6 @@ func main() {
 			fmt.Println(err)
 			return
 		}
-
 		err = usecases.CreateReminder(ctx, db, s, usecases.CreateReminderInput{
 			Title:   title,
 			DueDate: *date,
@@ -391,6 +394,29 @@ func main() {
 			}
 		default:
 			fmt.Println("Unknown list option. Use one of: reminders, notifications, dismissed, expired.")
+		}
+	case "clean":
+		if len(os.Args) < 3 {
+			fmt.Println("Specify what to clean (all, expired).")
+			return
+		}
+		switch os.Args[2] {
+		case "all":
+			err := s.Clean(ctx)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			fmt.Println("Database cleaned.")
+		case "expired":
+			err := s.CleanExpired(ctx)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			fmt.Println("Expired notifications cleaned.")
+		default:
+			fmt.Println("Unknown clean option. Use one of: all, expired.")
 		}
 	case "help":
 		help()

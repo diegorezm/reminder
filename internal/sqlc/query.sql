@@ -56,3 +56,8 @@ WHERE dismissed_at IS NULL
 AND due_date BETWEEN datetime('now') AND datetime('now', '+1 day')
 ORDER BY due_date ASC;
 
+-- name: CleanExpired :exec
+DELETE FROM notifications WHERE due_date < CURRENT_TIMESTAMP;
+
+-- name: Clean :exec
+DELETE FROM reminders;

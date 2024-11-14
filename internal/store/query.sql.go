@@ -10,6 +10,24 @@ import (
 	"time"
 )
 
+const clean = `-- name: Clean :exec
+DELETE FROM reminders
+`
+
+func (q *Queries) Clean(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, clean)
+	return err
+}
+
+const cleanExpired = `-- name: CleanExpired :exec
+DELETE FROM notifications WHERE due_date < CURRENT_TIMESTAMP
+`
+
+func (q *Queries) CleanExpired(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, cleanExpired)
+	return err
+}
+
 const createNotification = `-- name: CreateNotification :exec
 INSERT INTO notifications (reminder_id, due_date) VALUES (?, ?)
 `
