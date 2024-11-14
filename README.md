@@ -4,6 +4,13 @@
 
 So i can remember stuff while i'm on the terminal.
 
+## Installation
+
+```bash
+git clone https://github.com/diegorezm/reminder.git && make install
+```
+
+
 ## Disclaimer
 
 This is a work in progress. I'm not actually following any best practices or anything. 

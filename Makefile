@@ -9,6 +9,9 @@ GOOSE_MIGRATION_DIR=./internal/migrations
 # Targets
 .PHONY: build run clean up reset create
 
+deps: 
+	@go mod tidy
+
 templ:
 	@templ generate
 
@@ -22,14 +25,15 @@ run: build
 server: build
 	./bin/reminder-cli serve
 	
-install: build
-	@mkdir -p $(HOME)/.local/bin
-	@cp ./bin/reminder-cli $(HOME)/.local/bin/reminder-cli
-
 
 clean:
 	@rm -rf ./bin
 	@rm -rf $(DB_PATH)
+
+install: deps build 
+	@mkdir -p $(HOME)/.local/bin
+	@cp ./bin/reminder-cli $(HOME)/.local/bin/reminder-cli
+
 
 up:
 	@GOOSE_MIGRATION_DIR=$(GOOSE_MIGRATION_DIR) \
