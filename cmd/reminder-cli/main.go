@@ -51,28 +51,6 @@ func printTableNotifications(notifications []store.Notification, r store.Reminde
 	t.Render()
 }
 
-func createNotifications(ctx context.Context, db *sql.DB, s *store.Queries, reminderID int64, date []time.Time) error {
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-
-	defer tx.Rollback()
-
-	qtx := s.WithTx(tx)
-
-	for _, d := range date {
-		err = qtx.CreateNotification(ctx, store.CreateNotificationParams{
-			ReminderID: reminderID,
-			DueDate:    d,
-		})
-		if err != nil {
-			return err
-		}
-	}
-	return tx.Commit()
-}
-
 func help() {
 	fmt.Println("\nReminder CLI - Command Line Tool")
 	fmt.Println("Usage:")
