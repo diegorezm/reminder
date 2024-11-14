@@ -2,6 +2,7 @@ package validation
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -43,6 +44,33 @@ func CreateReminderArgsValidator(args []string) (string, *time.Time, string, err
 	}
 
 	return title, &dueDate, repeatFor, nil
+}
+
+const create_notification_error = "Please consider using the following format: ./binary create notification <id> <date>"
+
+func CreateNotificationArgsValidator(args []string) (int64, *time.Time, error) {
+	if len(args) < 4 {
+		return 0, nil, fmt.Errorf("Invalid number of arguments. Expected 3, got %d. %s", len(args), create_notification_error)
+	}
+	// bin [0] create [1] notification [2] id [3] date [4]
+	createArgs := args[3:]
+
+	if len(createArgs) < 2 {
+		return 0, nil, fmt.Errorf("Invalid number of arguments. Expected at least 2, got %d. %s", len(createArgs), create_notification_error)
+	}
+
+	id, err := strconv.Atoi(createArgs[0])
+	if err != nil {
+		return 0, nil, fmt.Errorf("Invalid ID: %w", err)
+	}
+
+	// Parse due date in "d-m-y" format (e.g., "01-01-2024 00:00:00")
+	dueDate, err := parseDueDate(createArgs[1])
+	if err != nil {
+		return 0, nil, err
+	}
+
+	return int64(id), &dueDate, nil
 }
 
 func parseDueDate(input string) (time.Time, error) {

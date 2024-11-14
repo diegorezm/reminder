@@ -66,8 +66,13 @@ func help() {
 	fmt.Println("\n  create <title> <date> [repeat]")
 	fmt.Println("      Creates a new reminder.")
 	fmt.Println("      - <title>: Title of the reminder.")
-	fmt.Println("      - <date>:  Due date (e.g., 31/12/2024 15:00:00).")
+	fmt.Println("      - <date>:  Due date (e.g., 31/12/2024 15:00).")
 	fmt.Println("      - [repeat]: Optional repetition interval (e.g., '3d' for 3 days).")
+
+	fmt.Println("\n  create notification <id> <date>")
+	fmt.Println("      Creates a new notification for a reminder.")
+	fmt.Println("      - <id>: ID of the reminder.")
+	fmt.Println("      - <date>:  Due date (e.g., 31/12/2024 15:00).")
 
 	fmt.Println("\n  delete <id>")
 	fmt.Println("      Deletes a reminder by its ID (also deletes associated notifications).")
@@ -94,7 +99,7 @@ func help() {
 	fmt.Println("        expired            Removes all expired notifications.")
 
 	fmt.Println("\nExamples:")
-	fmt.Println("  reminder-cli create \"Meeting\" \"31/12/2024 15:00:00\" \"+3d\"")
+	fmt.Println("  reminder-cli create \"Meeting\" \"31/12/2024 15:00\" \"+3d\"")
 	fmt.Println("  reminder-cli list notifications all")
 	fmt.Println("  reminder-cli dismiss 5")
 	fmt.Println("  reminder-cli delete 2")
@@ -171,6 +176,34 @@ func main() {
 		sv := server.New(s, db)
 		sv.StartServer()
 	case "create":
+		if len(os.Args) < 4 {
+			fmt.Println("Insufficient arguments for this command.")
+			return
+		}
+
+		// if the user is trying to create a notification
+		if os.Args[2] == "notification" {
+			id, date, err := validation.CreateNotificationArgsValidator(os.Args)
+
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			err = s.CreateNotification(ctx, store.CreateNotificationParams{
+				ReminderID: id,
+				DueDate:    *date,
+			})
+
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			fmt.Printf("Notification created for reminder with ID: %d\n", id)
+			return
+		}
+
 		title, date, repeat, err := validation.CreateReminderArgsValidator(os.Args)
 
 		if err != nil {
