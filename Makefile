@@ -21,6 +21,11 @@ run: build
 
 server: build
 	./bin/reminder-cli serve
+	
+install: build
+	@mkdir -p $(HOME)/.local/bin
+	@cp ./bin/reminder-cli $(HOME)/.local/bin/reminder-cli
+
 
 clean:
 	@rm -rf ./bin
