@@ -78,7 +78,7 @@ const getAboutToExpireNotifications = `-- name: GetAboutToExpireNotifications :m
 SELECT id, reminder_id, due_date, dismissed_at FROM notifications 
 WHERE dismissed_at IS NULL
 AND reminder_id = ?
-AND due_date BETWEEN datetime('now') AND datetime('now', '+1 day')
+AND due_date BETWEEN datetime('now', 'start of day', 'utc') AND datetime('now', '+1 day', 'start of day', 'utc')
 ORDER BY due_date ASC
 `
 

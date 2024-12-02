@@ -25,13 +25,15 @@ const (
 
 func printTableNotifications(notifications []store.Notification, r store.Reminder) {
 	t := table.New(os.Stdout)
-	t.SetHeaders("#", "Title", "Date", "Dismissed", "isExpired")
+	t.SetHeaders("#", "Title", "Date", "Time", "Dismissed", "is expired")
+	now := time.Now()
+
 	for _, n := range notifications {
 		id := strconv.FormatInt(n.ID, 10)
 
 		var expiredText string
 
-		isExpired := n.DueDate.Before(time.Now()) && n.DismissedAt.Valid == false
+		isExpired := n.DueDate.Before(now) && !n.DismissedAt.Valid
 
 		if isExpired {
 			expiredText = "Yes"
@@ -46,7 +48,8 @@ func printTableNotifications(notifications []store.Notification, r store.Reminde
 			dismissedText = "Not dismissed yet"
 		}
 
-		t.AddRow(id, r.Title, n.DueDate.Format(DEFAULT_DATE_FORMAT), dismissedText, expiredText)
+		t.AddRow(id, r.Title, n.DueDate.Format(DEFAULT_DATE_FORMAT), n.DueDate.Format("15:04"), dismissedText, expiredText)
+
 	}
 	t.Render()
 }

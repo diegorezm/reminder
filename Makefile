@@ -9,18 +9,23 @@ GOOSE_MIGRATION_DIR=./internal/migrations
 # Targets
 .PHONY: build run clean up reset create
 
+sqlc:
+	@sqlc generate
+
 deps: 
 	@go mod tidy
 
 templ:
 	@templ generate
 
-build: templ
+build: templ sqlc
 	@go build -o ./bin/reminder-cli ./cmd/reminder-cli/main.go
 	@chmod +x ./bin/reminder-cli
 
+
 run: build
 	./bin/reminder-cli
+
 
 server: build
 	./bin/reminder-cli serve
